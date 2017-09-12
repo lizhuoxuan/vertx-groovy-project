@@ -1,0 +1,50 @@
+allprojects {
+    group 'menu'
+    version '1.0-SNAPSHOT'
+}
+
+subprojects { subproject ->
+    ext {
+        vertxVersion = '3.4.2'
+        groovyVersion = '2.4.12'
+        isServer = subproject.name.startsWith('server')
+    }
+
+    apply plugin: 'groovy'
+
+    apply plugin: 'application'
+
+    mainClassName = 'io.vertx.core.Launcher'
+
+    repositories {
+        mavenCentral()
+    }
+
+    sourceCompatibility = '1.8'
+
+    dependencies {
+
+        compile "org.codehaus.groovy:groovy-all:${groovyVersion}"
+
+        compile "io.vertx:vertx-core:$vertxVersion"
+        compile "io.vertx:vertx-lang-groovy:$vertxVersion"
+
+
+        if (isServer) {
+            compile "io.vertx:vertx-auth-jwt:$vertxVersion"
+            compile "io.vertx:vertx-mysql-postgresql-client:$vertxVersion"
+
+            compile group: 'redis.clients', name: 'jedis', version: '2.8.1'
+
+            compile "joda-time:joda-time:2.9.6"
+            compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+            compile "io.vertx:vertx-web:$vertxVersion"
+            compile "io.vertx:vertx-web-client:$vertxVersion"
+            compile "io.vertx:vertx-redis-client:$vertxVersion"
+        }
+
+        testCompile 'junit:junit:4.12'
+        testCompile "io.vertx:vertx-unit:$vertxVersion"
+    }
+
+}

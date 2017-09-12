@@ -1,0 +1,54 @@
+buildscript {
+    ext {
+        vertx_version = '3.4.2'
+        groovy_version = '2.4.7'
+    }
+
+    repositories {
+        jcenter()
+    }
+
+}
+
+plugins {
+    id "net.ltgt.apt" version "0.11"
+    id 'com.github.johnrengelman.shadow' version '1.2.4'
+}
+
+compileGroovy {
+    groovyOptions.javaAnnotationProcessing = true
+}
+
+
+
+sourceSets {
+    main {
+        groovy {
+            srcDirs += 'build/generated/source/apt/main/'
+        }
+    }
+}
+
+shadowJar {
+    classifier = 'fat'
+    manifest {
+        attributes 'Main-Verticle': 'MainVerticle.groovy'
+    }
+    mergeServiceFiles {
+        include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
+    }
+    mergeGroovyExtensionModules()
+}
+
+dependencies {
+    compileOnly "io.vertx:vertx-codegen:$vertx_version"
+    compile "io.vertx:vertx-service-proxy:$vertx_version"
+    apt "io.vertx:vertx-service-proxy:$vertx_version:processor"
+    apt "io.vertx:vertx-codegen:$vertx_version:processor"
+}
+
+task cleanDist(type: Delete) {
+    delete project(':server-core').projectDir.toString() + '/build/generated'
+}
+
+compileGroovy.dependsOn cleanDist
